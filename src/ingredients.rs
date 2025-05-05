@@ -63,7 +63,7 @@ impl Base {
             SourDiesel => 0.0,
             GreenCrack => 0.0,
             GranddaddyPurple => 0.0,
-            Meth => 60.0,
+            Meth => 0.60,
         }
     }
 
