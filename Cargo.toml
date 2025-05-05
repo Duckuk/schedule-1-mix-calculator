@@ -1,0 +1,15 @@
+[package]
+name = "schedule-1-mix-calculator"
+version = "0.1.0"
+edition = "2024"
+license-file = "LICENSE"
+
+[profile.release]
+lto = true
+
+[dependencies]
+ahash = "0.8.11"
+enumset = "1.1.5"
+iced = "0.13.1"
+nalgebra = "0.33.2"
+rayon = "1.10.0"
