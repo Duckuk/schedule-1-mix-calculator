@@ -1,6 +1,9 @@
+use enumset::EnumSet;
+
+use crate::effect::Effect;
 use crate::ingredients::{Base, Intermediate};
 use crate::recipe::Recipe;
-use crate::search_for_recipe_max_dfs;
+use crate::{search_for_recipe_find_iddfs, search_for_recipe_max_dfs};
 
 #[allow(unused_macros)]
 macro_rules! time {
@@ -13,11 +16,12 @@ macro_rules! time {
 
 #[test]
 fn generic_test() {
-    search_for_recipe_max_dfs(
-        Recipe::with_base(Base::Meth),
-        |r| (100.0 * r.sell_price()) as i64,
-        8,
+    let donut = Recipe::with_base(Base::GreenCrack).add_intermediate(Intermediate::Paracetamol).add_intermediate(Intermediate::Donut).add_intermediate(Intermediate::Cuke).add_intermediate(Intermediate::Banana);
+    let test = search_for_recipe_find_iddfs(
+        |r| EnumSet::from(Effect::CalorieDense).is_subset(r.calculate_effects()),
+        1
     );
+    println!("{:#?}", test);
 }
 
 #[test]
@@ -28,4 +32,10 @@ fn calculate_interactions_test() {
             ingredient.interactions().clone()
         );
     }
+}
+
+#[test]
+fn test() {
+    let recipe = Recipe::with_base(Base::Meth).add_intermediate(Intermediate::Addy);
+    println!("{}", recipe.sell_price());
 }

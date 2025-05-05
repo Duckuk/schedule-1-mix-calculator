@@ -46,7 +46,7 @@ where
         return root;
     }
 
-    let best_recipe = Intermediate::ALL
+    let best_recipe: Recipe = Intermediate::ALL
         .par_iter()
         .map(|i| search_for_recipe_max_dfs(root.clone().add_intermediate(*i), f.clone(), depth - 1))
         .chain([root.clone()])
@@ -57,6 +57,22 @@ where
 }
 
 async fn search_for_recipe_find_iddfs_async<F>(f: F, depth: i8) -> Option<Recipe>
+where
+    F: Fn(&Recipe) -> bool + Sync + std::marker::Send,
+{
+    for depth in 0..=depth {
+        let matching_recipe = Base::ALL
+            .iter()
+            .find_map(|b| search_for_recipe_find_dfs(Recipe::with_base(*b), &f, depth));
+        if let Some(r) = matching_recipe {
+            return Some(r);
+        }
+    }
+
+    None
+}
+
+fn search_for_recipe_find_iddfs<F>(f: F, depth: i8) -> Option<Recipe>
 where
     F: Fn(&Recipe) -> bool + Sync + std::marker::Send,
 {
@@ -386,9 +402,7 @@ impl MixCalculator {
                 Task::perform(
                     search_for_recipe_find_iddfs_async(
                         move |r| {
-                            target_effects
-                                .iter()
-                                .all(|e| r.calculate_effects().contains(e))
+                            target_effects.is_subset(r.calculate_effects())
                         },
                         7,
                     ),

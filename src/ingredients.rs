@@ -405,8 +405,11 @@ impl Intermediate {
 
     pub fn apply_to_effect_set(&self, effect_set: &mut EnumSet<Effect>) {
         let frozen_effect_set = effect_set.clone();
+
+        effect_set.insert(self.base_effect());
+        
         for (from_effect, to_effect) in self.interactions() {
-            if frozen_effect_set.contains(*from_effect) {
+            if frozen_effect_set.contains(*from_effect) && !frozen_effect_set.contains(*to_effect) {
                 effect_set.remove(*from_effect);
                 effect_set.insert(*to_effect);
             }
