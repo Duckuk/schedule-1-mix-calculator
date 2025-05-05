@@ -5,7 +5,7 @@ edition = "2024"
 license-file = "LICENSE"
 
 [profile.release]
-lto = true
+lto = "thin"
 
 [dependencies]
 ahash = "0.8.11"
