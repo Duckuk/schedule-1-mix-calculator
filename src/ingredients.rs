@@ -1,12 +1,7 @@
+use crate::{additives::Additives, effect::Effect};
 use ahash::AHashMap;
 use enumset::EnumSet;
-
-use crate::{additives::Additives, effect::Effect};
-use rayon::prelude::*;
-use std::{
-    collections::{HashMap, HashSet},
-    sync::LazyLock,
-};
+use std::sync::LazyLock;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Pseudo {
@@ -156,6 +151,7 @@ pub enum Intermediate {
     Viagra,
 }
 
+#[allow(dead_code)]
 impl Intermediate {
     pub const ALL: &'static [Self] = &[
         Intermediate::Addy,
@@ -248,6 +244,7 @@ impl Intermediate {
         }
     }
 
+    /// Prefer `interactions`
     pub fn interactions_hardcoded(&self) -> AHashMap<Effect, Effect> {
         use Effect::*;
         use Intermediate::*;

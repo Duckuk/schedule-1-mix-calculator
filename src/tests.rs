@@ -1,13 +1,8 @@
-use std::collections::HashMap;
-
-use crate::effect::Effect;
 use crate::ingredients::{Base, Intermediate};
 use crate::recipe::Recipe;
-use crate::{
-    search_for_recipe_find_dfs, search_for_recipe_find_iddfs_async, search_for_recipe_max_dfs,
-};
-use rayon::prelude::*;
+use crate::search_for_recipe_max_dfs;
 
+#[allow(unused_macros)]
 macro_rules! time {
     ($($stmt:stmt)*) => {
         let then = std::time::Instant::now();

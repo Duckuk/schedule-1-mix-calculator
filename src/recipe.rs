@@ -52,6 +52,7 @@ impl ToString for Recipe {
     }
 }
 
+#[allow(dead_code)]
 impl Recipe {
     pub fn with_base(base: Base) -> Self {
         Self {

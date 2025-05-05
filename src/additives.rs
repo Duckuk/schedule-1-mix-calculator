@@ -15,6 +15,7 @@ impl Default for Additives {
     }
 }
 
+#[allow(dead_code)]
 impl Additives {
     pub fn new() -> Self {
         Additives::default()

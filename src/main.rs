@@ -14,28 +14,18 @@ mod recipe;
 #[cfg(test)]
 mod tests;
 
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    default,
-    sync::Mutex,
-};
-
 use additives::Additives;
-use ahash::AHashSet;
 use effect::Effect;
 use enumset::EnumSet;
 use iced::{
-    Alignment, Element, Length, Padding, Subscription, Task, Theme,
-    border::width,
-    theme,
+    Alignment, Element, Length, Padding, Task, Theme,
     widget::{
-        Button, Row, button, checkbox, column, container, horizontal_space, pick_list,
-        progress_bar, row, scrollable, slider, text, vertical_space,
+        button, checkbox, column, container, horizontal_space, pick_list, progress_bar, row,
+        scrollable, text,
     },
 };
 use ingredients::{Base, Intermediate, Pseudo};
-
-use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use recipe::Recipe;
 
 async fn search_for_recipe_max_dfs_async<K, F>(root: Recipe, f: F, depth: i8) -> Recipe

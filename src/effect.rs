@@ -1,3 +1,7 @@
+use Effect::*;
+use enumset::EnumSetType;
+use nalgebra::Vector2;
+
 #[derive(EnumSetType, Debug, Hash)]
 pub enum Effect {
     AntiGravity,
@@ -36,11 +40,6 @@ pub enum Effect {
     Zombifying,
 }
 
-use Effect::*;
-use enumset::{EnumSet, EnumSetType};
-use nalgebra::Vector2;
-
-use crate::ingredients::Intermediate;
 impl Effect {
     pub const ALL: &'static [Self] = &[
         AntiGravity,
