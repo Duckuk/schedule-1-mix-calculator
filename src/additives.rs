@@ -1,3 +1,5 @@
+/// TODO: convert this to an `EnumSet`
+
 #[derive(Clone, Copy)]
 #[derive(Default)]
 pub struct Additives {

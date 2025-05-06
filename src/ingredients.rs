@@ -26,6 +26,7 @@ impl PseudoQuality {
     pub const ALL: &'static [Self] = &[PseudoQuality::Low, PseudoQuality::Medium, PseudoQuality::High];
 }
 
+/// A base ingredient, probably for a `Recipe`.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub enum Base {
     OGKush,
@@ -57,8 +58,9 @@ impl Base {
         Base::GranddaddyPurple,
         Base::Meth,
     ];
-
-    pub fn base_addictiveness(&self) -> f32 {
+    
+    /// Returns the addictiveness of this `Base`.
+    pub fn addictiveness(&self) -> f32 {
         use Base::*;
         match self {
             OGKush => 0.0,
@@ -69,7 +71,8 @@ impl Base {
         }
     }
 
-    pub fn base_effect(&self) -> Option<Effect> {
+    /// Returns the base effect of this `Base`.
+    pub fn effect(&self) -> Option<Effect> {
         use Base::*;
         match self {
             OGKush => Some(Effect::Calming),
@@ -80,6 +83,7 @@ impl Base {
         }
     }
 
+    /// Calculates the cost to produce this base.
     pub fn production_cost(
         &self,
         additives: Option<Additives>,
@@ -121,7 +125,8 @@ impl Base {
         }
     }
 
-    pub fn base_price(&self) -> f32 {
+    /// Returns the sell price modifier of this `Base`.
+    pub fn sell_price(&self) -> f32 {
         use Base::*;
         match self {
             OGKush => 35.0,
@@ -183,8 +188,8 @@ impl Intermediate {
                         let mut map: AHashMap<Effect, Effect> =
                             AHashMap::with_capacity(Effect::ALL.len());
 
-                        let ingredient_mix_modifier = $intermediate.base_effect().mix_direction()
-                            * $intermediate.base_effect().mix_magnitude();
+                        let ingredient_mix_modifier = $intermediate.effect().mix_direction()
+                            * $intermediate.effect().mix_magnitude();
                         for from_effect in Effect::ALL {
                             let mix_pos = from_effect.mix_map_postion();
                             let new_mix_pos = mix_pos + ingredient_mix_modifier;
@@ -408,7 +413,7 @@ impl Intermediate {
     pub fn apply_to_effect_set(&self, effect_set: &mut EnumSet<Effect>) {
         let frozen_effect_set = *effect_set;
 
-        effect_set.insert(self.base_effect());
+        effect_set.insert(self.effect());
         
         for (from_effect, to_effect) in self.interactions() {
             if frozen_effect_set.contains(*from_effect) && !frozen_effect_set.contains(*to_effect) {
@@ -418,7 +423,7 @@ impl Intermediate {
         }
     }
 
-    pub fn base_purchase_price(&self) -> f32 {
+    pub fn purchase_price(&self) -> f32 {
         use Intermediate::*;
         match self {
             Addy => 9.0,
@@ -440,7 +445,7 @@ impl Intermediate {
         }
     }
 
-    pub fn base_effect(&self) -> Effect {
+    pub fn effect(&self) -> Effect {
         use Intermediate::*;
         match self {
             Addy => Effect::ThoughtProvoking,

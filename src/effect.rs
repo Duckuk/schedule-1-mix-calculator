@@ -2,6 +2,7 @@ use Effect::*;
 use enumset::EnumSetType;
 use nalgebra::Vector2;
 
+/// An effect given by a drug
 #[derive(EnumSetType, Debug, Hash)]
 pub enum Effect {
     AntiGravity,
@@ -78,6 +79,7 @@ impl Effect {
         Zombifying,
     ];
 
+    /// Returns the price modifier of this `Effect`.
     pub fn price_modifier(&self) -> f32 {
         match self {
             AntiGravity => 0.54,
@@ -117,6 +119,7 @@ impl Effect {
         }
     }
 
+    /// Returns the addictiveness modifier of this `Effect`.
     pub fn addictiveness(&self) -> f32 {
         match self {
             AntiGravity => 0.611,
@@ -156,6 +159,7 @@ impl Effect {
         }
     }
 
+    /// Returns the position of this `Effect` on the mix map.
     pub fn mix_map_postion(&self) -> Vector2<f32> {
         Vector2::from(match self {
             AntiGravity => [0.96, -2.96],
@@ -195,6 +199,7 @@ impl Effect {
         })
     }
 
+    /// Returns the direction that this `Effect` modifies other effects.
     pub fn mix_direction(&self) -> nalgebra::Vector2<f32> {
         Vector2::from(match self {
             AntiGravity => [0.3085, -0.9512],
@@ -234,6 +239,7 @@ impl Effect {
         })
     }
 
+    /// Returns the magnitude of the direction that this `Effect` modifies other effects.
     pub fn mix_magnitude(&self) -> f32 {
         match self {
             AntiGravity => 3.1118,
@@ -316,10 +322,12 @@ impl std::fmt::Display for Effect {
     }
 }
 
+/// Calculates the sum of several effects' price modifiers.
 pub fn get_total_price_modifier<I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
     effects.into_iter().map(|e| e.price_modifier()).sum()
 }
 
+/// Calculates the sum of several effects' addictiveness modifiers.
 pub fn get_total_addictiveness<I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
     effects.into_iter().map(|e| e.addictiveness()).sum()
 }

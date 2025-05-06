@@ -554,7 +554,7 @@ impl MixCalculator {
         .size(15);
         let sell_price = text(format!(
             "~${:.0}",
-            Base::OGKush.base_price() * (1.0 + self.total_price_modifier().max(f32::MIN_POSITIVE))
+            Base::OGKush.sell_price() * (1.0 + self.total_price_modifier().max(f32::MIN_POSITIVE))
         ))
         .size(15);
         let addictiveness = text(format!(

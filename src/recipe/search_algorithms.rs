@@ -2,7 +2,9 @@ use super::Recipe;
 use crate::ingredients::{Base, Intermediate};
 use rayon::prelude::*;
 
-// Searches through all possible recipes for one that maximizes the value given by the key function F
+/// A brute-force DFS search algorithm that goes through all possible recipes starting from `root` and returns the recipe with the maximum value computed by the given function.  
+/// 
+/// The size of the search space is about `16^depth`. Depths greater than `5` tend to produce exponentially unreasonable search times.
 pub fn search_for_recipe_max_dfs<K, F>(root: Recipe, f: F, depth: i8) -> Recipe
 where
     K: Ord + Send,
@@ -22,6 +24,11 @@ where
     best_recipe
 }
 
+/// A brute-force iterative deepening depth-first search algorithm that goes through all possible recipes starting from `root` and returns the first recipe that satifies the given predicate.  
+/// 
+/// Differs from a traditional depth-first search in that it gradually increases the depth until it finds a match. This means that it mimics the search pattern of a breadth-first search while keeping the small memory footprint of a depth-first search.
+///
+/// The size of the search space is about `16^depth`. Depths greater than `5` tend to produce exponentially unreasonable search times.
 pub fn search_for_recipe_find_iddfs<F>(f: F, depth: i8) -> Option<Recipe>
 where
     F: Fn(&Recipe) -> bool + Sync + std::marker::Send,
@@ -38,10 +45,12 @@ where
     None
 }
 
-// Searches through all possible recipes for one that matches the predicate F
-pub fn search_for_recipe_find_dfs<F>(root: Recipe, f: F, depth: i8) -> Option<Recipe>
+/// A brute-force depth-first search algorithm that goes through all possible recipes starting from `root` and returns the first recipe that satifies the given predicate.  
+/// 
+/// The size of the search space is about `16^depth`. Depths greater than `5` tend to produce exponentially unreasonable search times.
+pub fn search_for_recipe_find_dfs<P>(root: Recipe, f: P, depth: i8) -> Option<Recipe>
 where
-    F: Fn(&Recipe) -> bool + Sync + std::marker::Send + Clone,
+    P: Fn(&Recipe) -> bool + Sync + std::marker::Send + Clone,
 {
     if depth <= 0 {
         return f(&root).then_some(root);
