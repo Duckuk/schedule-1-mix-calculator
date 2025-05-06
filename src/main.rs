@@ -1,15 +1,7 @@
-/*
-TODO
-  - INSANITY AHOY: SEEK ScheduleOne.Properties.MixMaps.MixerMap
-    - ScheduleOne.Properties.MixMaps.Effect HAS POSITIONS ON THIS "MAP" FOR EACH EFFECT
-      - ScheduleOne.Properties.Property HAS MixDirection AND MixMagnitude
-        - OH GOD WHAT IN THE NAME OF CHRIST IS THIS SYSTEM???
-*/
-
-mod additives;
-mod effect;
-mod ingredients;
-mod recipe;
+pub mod additives;
+pub mod effect;
+pub mod ingredients;
+pub mod recipe;
 
 #[cfg(test)]
 mod tests;
