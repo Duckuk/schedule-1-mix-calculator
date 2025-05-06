@@ -1,3 +1,5 @@
+pub mod search_algorithms;
+
 use enumset::EnumSet;
 
 use crate::{
