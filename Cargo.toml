@@ -7,9 +7,6 @@ license-file = "LICENSE"
 [profile.release]
 lto = "thin"
 
-[target.x86_64-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
-
 [dependencies]
 ahash = "0.8.11"
 enumset = "1.1.5"
