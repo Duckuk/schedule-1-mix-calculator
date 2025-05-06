@@ -28,14 +28,6 @@ use ingredients::{Base, Intermediate, Pseudo};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use recipe::Recipe;
 
-async fn search_for_recipe_max_dfs_async<K, F>(root: Recipe, f: F, depth: i8) -> Recipe
-where
-    K: Ord + Send,
-    F: Fn(&Recipe) -> K + Sync + std::marker::Send + Clone,
-{
-    search_for_recipe_max_dfs(root, f, depth)
-}
-
 // Searches through all possible recipes for one that maximizes the value given by the key function F
 fn search_for_recipe_max_dfs<K, F>(root: Recipe, f: F, depth: i8) -> Recipe
 where
@@ -54,22 +46,6 @@ where
         .expect("PANIC AAAAHHHH");
 
     best_recipe
-}
-
-async fn search_for_recipe_find_iddfs_async<F>(f: F, depth: i8) -> Option<Recipe>
-where
-    F: Fn(&Recipe) -> bool + Sync + std::marker::Send,
-{
-    for depth in 0..=depth {
-        let matching_recipe = Base::ALL
-            .iter()
-            .find_map(|b| search_for_recipe_find_dfs(Recipe::with_base(*b), &f, depth));
-        if let Some(r) = matching_recipe {
-            return Some(r);
-        }
-    }
-
-    None
 }
 
 fn search_for_recipe_find_iddfs<F>(f: F, depth: i8) -> Option<Recipe>
@@ -370,29 +346,29 @@ impl MixCalculator {
             }
             Message::CalculateRecipe if self.mode == Mode::OptimalCalculator => {
                 self.calculating_recipe = true;
+
+                let root = Recipe::with_base(self.base_selected);
+                let f = match self.metric_selected {
+                    Metric::ProfitMargin => |r: &Recipe| {
+                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
+                            + (100.0 * r.profit_margin(None, None, None)) as i64
+                    },
+                    Metric::Profit => |r: &Recipe| {
+                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
+                            + (100.0 * r.profit(None, None, None)) as i64
+                    },
+                    Metric::SellPrice => |r: &Recipe| {
+                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
+                            + (100.0 * r.sell_price()) as i64
+                    },
+                    Metric::ProductionCost => |r: &Recipe| {
+                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
+                            + (100.0 * -r.production_cost(None, None, None)) as i64
+                    },
+                };
+                let depth = self.depth_selected as i8;
                 Task::perform(
-                    search_for_recipe_max_dfs_async(
-                        Recipe::with_base(self.base_selected.clone()),
-                        match self.metric_selected {
-                            Metric::ProfitMargin => move |r: &Recipe| {
-                                (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                                    + (100.0 * r.profit_margin(None, None, None)) as i64
-                            },
-                            Metric::Profit => move |r: &Recipe| {
-                                (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                                    + (100.0 * r.profit(None, None, None)) as i64
-                            },
-                            Metric::SellPrice => move |r: &Recipe| {
-                                (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                                    + (100.0 * r.sell_price()) as i64
-                            },
-                            Metric::ProductionCost => move |r: &Recipe| {
-                                (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                                    + (100.0 * -r.production_cost(None, None, None)) as i64
-                            },
-                        },
-                        self.depth_selected as i8,
-                    ),
+                    async move { search_for_recipe_max_dfs(root, f, depth) },
                     |r| Message::CalculateRecipeFinished(Some(r)),
                 )
             }
@@ -400,12 +376,12 @@ impl MixCalculator {
                 self.calculating_recipe = true;
                 let target_effects = self.target_effects.clone();
                 Task::perform(
-                    search_for_recipe_find_iddfs_async(
-                        move |r| {
-                            target_effects.is_subset(r.calculate_effects())
-                        },
-                        7,
-                    ),
+                    async move {
+                        search_for_recipe_find_iddfs(
+                            move |r| target_effects.is_subset(r.calculate_effects()),
+                            8,
+                        )
+                    },
                     Message::CalculateRecipeFinished,
                 )
             }

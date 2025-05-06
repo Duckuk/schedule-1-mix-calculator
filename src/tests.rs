@@ -16,10 +16,14 @@ macro_rules! time {
 
 #[test]
 fn generic_test() {
-    let donut = Recipe::with_base(Base::GreenCrack).add_intermediate(Intermediate::Paracetamol).add_intermediate(Intermediate::Donut).add_intermediate(Intermediate::Cuke).add_intermediate(Intermediate::Banana);
+    let donut = Recipe::with_base(Base::GreenCrack)
+        .add_intermediate(Intermediate::Paracetamol)
+        .add_intermediate(Intermediate::Donut)
+        .add_intermediate(Intermediate::Cuke)
+        .add_intermediate(Intermediate::Banana);
     let test = search_for_recipe_find_iddfs(
         |r| EnumSet::from(Effect::CalorieDense).is_subset(r.calculate_effects()),
-        1
+        1,
     );
     println!("{:#?}", test);
 }
