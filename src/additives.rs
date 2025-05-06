@@ -1,19 +1,11 @@
 #[derive(Clone, Copy)]
+#[derive(Default)]
 pub struct Additives {
     pub pgr: bool,
     pub speed_grow: bool,
     pub fertilizer: bool,
 }
 
-impl Default for Additives {
-    fn default() -> Self {
-        Additives {
-            pgr: false,
-            speed_grow: false,
-            fertilizer: false,
-        }
-    }
-}
 
 #[allow(dead_code)]
 impl Additives {

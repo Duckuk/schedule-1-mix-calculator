@@ -274,9 +274,9 @@ impl Effect {
     }
 }
 
-impl ToString for Effect {
-    fn to_string(&self) -> String {
-        match self {
+impl std::fmt::Display for Effect {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
             AntiGravity => String::from("AntiGravity"),
             Athletic => String::from("Athletic"),
             Balding => String::from("Balding"),
@@ -311,14 +311,15 @@ impl ToString for Effect {
             Toxic => String::from("Toxic"),
             TropicThunder => String::from("TropicThunder"),
             Zombifying => String::from("Zombifying"),
-        }
+        };
+        write!(f, "{s}")
     }
 }
 
-pub fn get_total_price_modifier<'a, I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
+pub fn get_total_price_modifier<I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
     effects.into_iter().map(|e| e.price_modifier()).sum()
 }
 
-pub fn get_total_addictiveness<'a, I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
+pub fn get_total_addictiveness<I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
     effects.into_iter().map(|e| e.addictiveness()).sum()
 }

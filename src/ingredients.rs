@@ -4,25 +4,26 @@ use enumset::EnumSet;
 use std::sync::LazyLock;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Pseudo {
-    LowQuality,
-    MedQuality,
-    HighQuality,
+pub enum PseudoQuality {
+    Low,
+    Medium,
+    High,
 }
 
-impl ToString for Pseudo {
-    fn to_string(&self) -> String {
-        use Pseudo::*;
-        match self {
-            LowQuality => String::from("Low Quality Pseudo"),
-            MedQuality => String::from("Medium Quality Pseudo"),
-            HighQuality => String::from("High Quality Pseudo"),
-        }
+impl std::fmt::Display for PseudoQuality {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            PseudoQuality::Low => String::from("Low Quality Pseudo"),
+            PseudoQuality::Medium => String::from("Medium Quality Pseudo"),
+            PseudoQuality::High => String::from("High Quality Pseudo"),
+        };
+
+        write!(f, "{s}")
     }
 }
 
-impl Pseudo {
-    pub const ALL: &'static [Self] = &[Pseudo::LowQuality, Pseudo::MedQuality, Pseudo::HighQuality];
+impl PseudoQuality {
+    pub const ALL: &'static [Self] = &[PseudoQuality::Low, PseudoQuality::Medium, PseudoQuality::High];
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
@@ -34,16 +35,17 @@ pub enum Base {
     Meth,
 }
 
-impl ToString for Base {
-    fn to_string(&self) -> String {
-        use Base::*;
-        match self {
-            OGKush => String::from("OG Kush"),
-            SourDiesel => String::from("Sour Diesel"),
-            GreenCrack => String::from("Green Crack"),
-            GranddaddyPurple => String::from("Granddaddy Purple"),
-            Meth => String::from("Meth"),
-        }
+impl std::fmt::Display for Base {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Base::OGKush => String::from("OG Kush"),
+            Base::SourDiesel => String::from("Sour Diesel"),
+            Base::GreenCrack => String::from("Green Crack"),
+            Base::GranddaddyPurple => String::from("Granddaddy Purple"),
+            Base::Meth => String::from("Meth"),
+        };
+
+        write!(f, "{s}")
     }
 }
 
@@ -82,7 +84,7 @@ impl Base {
         &self,
         additives: Option<Additives>,
         grow_tent: Option<bool>,
-        pseudo: Option<Pseudo>,
+        pseudo: Option<PseudoQuality>,
     ) -> f32 {
         use Base::*;
         let base_weed_batch_size = 12.0;
@@ -103,9 +105,9 @@ impl Base {
 
         let pseudo_price = match pseudo {
             None => 60.0,
-            Some(Pseudo::LowQuality) => 60.0,
-            Some(Pseudo::MedQuality) => 80.0,
-            Some(Pseudo::HighQuality) => 110.0,
+            Some(PseudoQuality::Low) => 60.0,
+            Some(PseudoQuality::Medium) => 80.0,
+            Some(PseudoQuality::High) => 110.0,
         };
         const ACID_PRICE: f32 = 40.0;
         const PHOSPHOROUS_PRICE: f32 = 40.0;
@@ -404,7 +406,7 @@ impl Intermediate {
     }
 
     pub fn apply_to_effect_set(&self, effect_set: &mut EnumSet<Effect>) {
-        let frozen_effect_set = effect_set.clone();
+        let frozen_effect_set = *effect_set;
 
         effect_set.insert(self.base_effect());
         
@@ -461,8 +463,27 @@ impl Intermediate {
     }
 }
 
-impl ToString for Intermediate {
-    fn to_string(&self) -> String {
-        self.name()
+impl std::fmt::Display for Intermediate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Intermediate::Addy => String::from("Addy"),
+            Intermediate::Banana => String::from("Banana"),
+            Intermediate::Battery => String::from("Battery"),
+            Intermediate::Chilli => String::from("Chilli"),
+            Intermediate::Cuke => String::from("Cuke"),
+            Intermediate::Donut => String::from("Donut"),
+            Intermediate::EnergyDrink => String::from("Energy Drink"),
+            Intermediate::FluMedicine => String::from("Flu Medicine"),
+            Intermediate::Gasoline => String::from("Gasoline"),
+            Intermediate::HorseSemen => String::from("Horse Semen"),
+            Intermediate::Iodine => String::from("Iodine"),
+            Intermediate::MegaBean => String::from("Mega Bean"),
+            Intermediate::MotorOil => String::from("Motor Oil"),
+            Intermediate::MouthWash => String::from("Mouth Wash"),
+            Intermediate::Paracetamol => String::from("Paracetamol"),
+            Intermediate::Viagra => String::from("Viagra"),
+        };
+
+        write!(f, "{s}")
     }
 }

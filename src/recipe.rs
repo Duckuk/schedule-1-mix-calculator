@@ -3,7 +3,7 @@ use enumset::EnumSet;
 use crate::{
     additives::Additives,
     effect::{self, Effect},
-    ingredients::{Base, Intermediate, Pseudo},
+    ingredients::{Base, Intermediate, PseudoQuality},
 };
 
 #[derive(Clone, Debug)]
@@ -21,11 +21,12 @@ impl Default for Recipe {
     }
 }
 
+#[expect(clippy::to_string_trait_impl)]
 impl ToString for Recipe {
     fn to_string(&self) -> String {
         let mut s = String::new();
         s.push_str("Base:\n");
-        s.push_str(format!("  {}\n\n", self.base.to_string()).as_str());
+        s.push_str(format!("  {}\n\n", self.base).as_str());
 
         let mut i = 1;
         s.push_str("Steps:\n");
@@ -46,7 +47,7 @@ impl ToString for Recipe {
         s.push_str("Effects:\n");
         effects
             .iter()
-            .for_each(|e| s.push_str(format!("  - {}\n", e.to_string()).as_str()));
+            .for_each(|e| s.push_str(format!("  - {}\n", e).as_str()));
 
         s
     }
@@ -91,7 +92,7 @@ impl Recipe {
         &self,
         additives: Option<Additives>,
         grow_tent: Option<bool>,
-        pseudo: Option<Pseudo>,
+        pseudo: Option<PseudoQuality>,
     ) -> f32 {
         self.base.production_cost(additives, grow_tent, pseudo)
             + self
@@ -109,7 +110,7 @@ impl Recipe {
         &self,
         additives: Option<Additives>,
         grow_tent: Option<bool>,
-        pseudo: Option<Pseudo>,
+        pseudo: Option<PseudoQuality>,
     ) -> f32 {
         self.sell_price() - self.production_cost(additives, grow_tent, pseudo)
     }
@@ -118,7 +119,7 @@ impl Recipe {
         &self,
         additives: Option<Additives>,
         grow_tent: Option<bool>,
-        pseudo: Option<Pseudo>,
+        pseudo: Option<PseudoQuality>,
     ) -> f32 {
         (self.sell_price() - self.production_cost(additives, grow_tent, pseudo)) / self.sell_price()
     }

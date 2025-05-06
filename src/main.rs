@@ -24,7 +24,7 @@ use iced::{
         scrollable, text,
     },
 };
-use ingredients::{Base, Intermediate, Pseudo};
+use ingredients::{Base, Intermediate, PseudoQuality};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use recipe::Recipe;
 
@@ -95,17 +95,18 @@ enum SortType {
     PriceModifierDescending,
 }
 
-impl ToString for SortType {
-    fn to_string(&self) -> String {
-        use SortType::*;
-        match self {
-            AlphabeticalAscending => String::from("Name (A-Z)"),
-            AlphabeticalDescending => String::from("Name (Z-A)"),
-            AddictivenessAscending => String::from("Addictiveness (low to high)"),
-            AddictivenessDescending => String::from("Addictiveness (high to low)"),
-            PriceModifierAscending => String::from("Price Modifier (low to high)"),
-            PriceModifierDescending => String::from("Price Modifier (high to low)"),
-        }
+impl std::fmt::Display for SortType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            SortType::AlphabeticalAscending => String::from("Name (A-Z)"),
+            SortType::AlphabeticalDescending => String::from("Name (Z-A)"),
+            SortType::AddictivenessAscending => String::from("Addictiveness (low to high)"),
+            SortType::AddictivenessDescending => String::from("Addictiveness (high to low)"),
+            SortType::PriceModifierAscending => String::from("Price Modifier (low to high)"),
+            SortType::PriceModifierDescending => String::from("Price Modifier (high to low)"),
+        };
+
+        write!(f, "{s}")
     }
 }
 
@@ -146,13 +147,14 @@ enum Mode {
     OptimalCalculator,
 }
 
-impl ToString for Mode {
-    fn to_string(&self) -> String {
-        use Mode::*;
-        match self {
-            ReverseCalculator => String::from("Reverse"),
-            OptimalCalculator => String::from("Optimal"),
-        }
+impl std::fmt::Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Mode::ReverseCalculator => String::from("Reverse"),
+            Mode::OptimalCalculator => String::from("Optimal"),
+        };
+
+        write!(f, "{s}")
     }
 }
 
@@ -168,15 +170,16 @@ enum Metric {
     ProductionCost,
 }
 
-impl ToString for Metric {
-    fn to_string(&self) -> String {
-        use Metric::*;
-        match self {
-            ProfitMargin => String::from("Profit Margin"),
-            Profit => String::from("Profit"),
-            SellPrice => String::from("Sell Price"),
-            ProductionCost => String::from("Production Cost"),
-        }
+impl std::fmt::Display for Metric {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Metric::ProfitMargin => String::from("Profit Margin"),
+            Metric::Profit => String::from("Profit"),
+            Metric::SellPrice => String::from("Sell Price"),
+            Metric::ProductionCost => String::from("Production Cost"),
+        };
+
+        write!(f, "{s}")
     }
 }
 
@@ -207,7 +210,7 @@ enum Message {
     ToggledPGR(bool),
     ToggledFertilizer(bool),
     ToggledSpeedGrow(bool),
-    ChangedPseudo(Pseudo),
+    ChangedPseudo(PseudoQuality),
 
     CalculateRecipe,
     CalculateRecipeFinished(Option<Recipe>),
@@ -229,7 +232,7 @@ struct MixCalculator {
 
     additives: Additives,
     grow_tent: bool,
-    pseudo: Pseudo,
+    pseudo: PseudoQuality,
 
     calculating_recipe: bool,
     active_recipe: Option<Recipe>,
@@ -264,7 +267,7 @@ impl Default for MixCalculator {
 
             additives: Additives::default(),
             grow_tent: false,
-            pseudo: Pseudo::LowQuality,
+            pseudo: PseudoQuality::Low,
 
             calculating_recipe: false,
             active_recipe: Some(default_recipe),
@@ -374,7 +377,7 @@ impl MixCalculator {
             }
             Message::CalculateRecipe => {
                 self.calculating_recipe = true;
-                let target_effects = self.target_effects.clone();
+                let target_effects = self.target_effects;
                 Task::perform(
                     async move {
                         search_for_recipe_find_iddfs(
@@ -430,7 +433,7 @@ impl MixCalculator {
         let speedgrow_checkbox =
             checkbox("Speed Grow", self.additives.speed_grow).on_toggle(Message::ToggledSpeedGrow);
         let pseudo_picker =
-            pick_list(Pseudo::ALL, Some(self.pseudo), Message::ChangedPseudo).text_size(10);
+            pick_list(PseudoQuality::ALL, Some(self.pseudo), Message::ChangedPseudo).text_size(10);
 
         row![
             row![text("Mode").size(15), mode_picker,].spacing(5),
