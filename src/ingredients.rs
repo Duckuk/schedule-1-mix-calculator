@@ -413,7 +413,9 @@ impl Intermediate {
     pub fn apply_to_effect_set(&self, effect_set: &mut EnumSet<Effect>) {
         let frozen_effect_set = *effect_set;
 
-        effect_set.insert(self.effect());
+        if effect_set.len() < 8 {
+            effect_set.insert(self.effect());
+        }
         
         for (from_effect, to_effect) in self.interactions() {
             if frozen_effect_set.contains(*from_effect) && !frozen_effect_set.contains(*to_effect) {
