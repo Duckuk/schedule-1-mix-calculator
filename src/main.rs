@@ -1,4 +1,4 @@
-pub mod additives;
+pub mod expenses;
 pub mod effect;
 pub mod ingredients;
 pub mod recipe;
@@ -6,7 +6,7 @@ pub mod recipe;
 #[cfg(test)]
 mod tests;
 
-use additives::Additives;
+use expenses::{Additive, Expenses, PseudoQuality, Soil};
 use effect::Effect;
 use enumset::EnumSet;
 use iced::{
@@ -16,7 +16,7 @@ use iced::{
         scrollable, text,
     },
 };
-use ingredients::{Base, Intermediate, PseudoQuality};
+use ingredients::{Base, Intermediate};
 use recipe::Recipe;
 use recipe::search_algorithms::*;
 
@@ -145,6 +145,7 @@ enum Message {
     ToggledPGR(bool),
     ToggledFertilizer(bool),
     ToggledSpeedGrow(bool),
+    ChangedSoil(Soil),
     ChangedPseudo(PseudoQuality),
 
     CalculateRecipe,
@@ -165,9 +166,7 @@ struct MixCalculator {
     metric_selected: Metric,
     depth_selected: u8,
 
-    additives: Additives,
-    grow_tent: bool,
-    pseudo: PseudoQuality,
+    expenses: Expenses,
 
     calculating_recipe: bool,
     active_recipe: Option<Recipe>,
@@ -200,9 +199,7 @@ impl Default for MixCalculator {
             metric_selected: Metric::ProfitMargin,
             depth_selected: 4,
 
-            additives: Additives::default(),
-            grow_tent: false,
-            pseudo: PseudoQuality::Low,
+            expenses: Expenses::default(),
 
             calculating_recipe: false,
             active_recipe: Some(default_recipe),
@@ -259,23 +256,27 @@ impl MixCalculator {
                 Task::none()
             }
             Message::ToggledGrowTent(b) => {
-                self.grow_tent = b;
+                self.expenses.grow_tent = b;
                 Task::none()
             }
             Message::ToggledPGR(b) => {
-                self.additives.pgr = b;
+                self.expenses.additives ^= Additive::PGR; 
                 Task::none()
             }
             Message::ToggledFertilizer(b) => {
-                self.additives.fertilizer = b;
+                self.expenses.additives ^= Additive::Fertilizer;
                 Task::none()
             }
             Message::ToggledSpeedGrow(b) => {
-                self.additives.speed_grow = b;
+                self.expenses.additives ^= Additive::SpeedGrow;
+                Task::none()
+            }
+            Message::ChangedSoil(soil) => {
+                self.expenses.soil = soil;
                 Task::none()
             }
             Message::ChangedPseudo(pseudo) => {
-                self.pseudo = pseudo;
+                self.expenses.pseudo = pseudo;
                 Task::none()
             }
             Message::ChangedTheme(theme) => {
@@ -288,20 +289,20 @@ impl MixCalculator {
                 let root = Recipe::with_base(self.base_selected);
                 let f = match self.metric_selected {
                     Metric::ProfitMargin => |r: &Recipe| {
-                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                            + (100.0 * r.profit_margin(None, None, None)) as i64
+                        (100.0 * r.addictiveness()) as i64
+                            + (100.0 * r.profit_margin(Expenses::default())) as i64
                     },
                     Metric::Profit => |r: &Recipe| {
-                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                            + (100.0 * r.profit(None, None, None)) as i64
+                        (100.0 * r.addictiveness()) as i64
+                            + (100.0 * r.profit(Expenses::default())) as i64
                     },
                     Metric::SellPrice => |r: &Recipe| {
-                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
+                        (100.0 * r.addictiveness()) as i64
                             + (100.0 * r.sell_price()) as i64
                     },
                     Metric::ProductionCost => |r: &Recipe| {
-                        (100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)) as i64
-                            + (100.0 * -r.production_cost(None, None, None)) as i64
+                        (100.0 * r.addictiveness()) as i64
+                            + (100.0 * r.production_cost(Expenses::default())) as i64
                     },
                 };
                 let depth = self.depth_selected as i8;
@@ -361,14 +362,16 @@ impl MixCalculator {
             .padding(2);
 
         let grow_tent_checkbox =
-            checkbox("Grow Tent", self.grow_tent).on_toggle(Message::ToggledGrowTent);
-        let pgr_checkbox = checkbox("PGR", self.additives.pgr).on_toggle(Message::ToggledPGR);
+            checkbox("Grow Tent", self.expenses.grow_tent).on_toggle(Message::ToggledGrowTent);
+        let pgr_checkbox = checkbox("PGR", self.expenses.additives.contains(Additive::PGR)).on_toggle(Message::ToggledPGR);
         let fertilizer_checkbox =
-            checkbox("Fertilizer", self.additives.fertilizer).on_toggle(Message::ToggledFertilizer);
+            checkbox("Fertilizer", self.expenses.additives.contains(Additive::Fertilizer)).on_toggle(Message::ToggledFertilizer);
         let speedgrow_checkbox =
-            checkbox("Speed Grow", self.additives.speed_grow).on_toggle(Message::ToggledSpeedGrow);
+            checkbox("Speed Grow", self.expenses.additives.contains(Additive::SpeedGrow)).on_toggle(Message::ToggledSpeedGrow);
+        let soil_picker =
+            pick_list(Soil::ALL, Some(self.expenses.soil), Message::ChangedSoil).text_size(10);
         let pseudo_picker =
-            pick_list(PseudoQuality::ALL, Some(self.pseudo), Message::ChangedPseudo).text_size(10);
+            pick_list(PseudoQuality::ALL, Some(self.expenses.pseudo), Message::ChangedPseudo).text_size(10);
 
         row![
             row![text("Mode").size(15), mode_picker,].spacing(5),
@@ -378,6 +381,7 @@ impl MixCalculator {
             pgr_checkbox,
             fertilizer_checkbox,
             speedgrow_checkbox,
+            soil_picker,
             pseudo_picker
         ]
         .align_y(Alignment::Center)
@@ -414,10 +418,8 @@ impl MixCalculator {
         let production_cost = text(format!(
             "~${:.0}",
             r.production_cost(
-                Some(self.additives),
-                Some(self.grow_tent),
-                Some(self.pseudo)
-            )
+                self.expenses
+            ).abs()
         ))
         .size(15);
         let sell_price = text(format!("${:.0}", r.sell_price())).size(15);
@@ -425,23 +427,16 @@ impl MixCalculator {
             "{:.1}%",
             100.0
                 * r.profit_margin(
-                    Some(self.additives),
-                    Some(self.grow_tent),
-                    Some(self.pseudo)
+                    self.expenses
                 )
         ))
         .size(15);
-        let addictiveness = text(format!(
-            "{:.0}%",
-            100.0 * r.addictiveness().clamp(f32::MIN_POSITIVE, 1.0)
-        ));
 
         row![
             horizontal_space(),
             column![text("Production Cost"), production_cost].align_x(Alignment::Center),
             column![text("Sell Price"), sell_price].align_x(Alignment::Center),
             column![text("Profit Margin"), profit_margin].align_x(Alignment::Center),
-            column![text("Addictiveness"), addictiveness].align_x(Alignment::Center),
             horizontal_space(),
         ]
         .spacing(20)
@@ -559,7 +554,7 @@ impl MixCalculator {
         .size(15);
         let addictiveness = text(format!(
             "{:.0}%",
-            (100.0 * self.total_addictiveness().clamp(f32::MIN_POSITIVE, 1.0)).floor()
+            (100.0 * self.total_addictiveness()).floor()
         ))
         .size(15);
 

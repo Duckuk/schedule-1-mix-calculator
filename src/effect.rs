@@ -327,7 +327,7 @@ pub fn get_total_price_modifier<I: IntoIterator<Item = Effect>>(effects: I) -> f
     effects.into_iter().map(|e| e.price_modifier()).sum()
 }
 
-/// Calculates the sum of several effects' addictiveness modifiers.
+/// Calculates the sum of several effects' addictiveness modifiers, clamped between `f32::MIN_POSITIVE` and `1.0`.
 pub fn get_total_addictiveness<I: IntoIterator<Item = Effect>>(effects: I) -> f32 {
-    effects.into_iter().map(|e| e.addictiveness()).sum()
+    effects.into_iter().map(|e| e.addictiveness()).sum::<f32>().clamp(f32::MIN_POSITIVE, 1.0)
 }

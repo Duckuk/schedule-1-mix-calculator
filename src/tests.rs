@@ -1,4 +1,5 @@
 use crate::effect::Effect;
+use crate::expenses::Expenses;
 use crate::ingredients::{Base, Intermediate};
 use crate::recipe::Recipe;
 
@@ -33,6 +34,8 @@ fn calculate_interactions_test() {
 
 #[test]
 fn test() {
+    let mut e = Expenses::default();
+    e.additives.insert(crate::expenses::Additive::PGR);
     let recipe = Recipe::with_base(Base::Meth).add_intermediate(Intermediate::Addy);
-    println!("{}", recipe.sell_price());
+    println!("{}", recipe.production_cost(e));
 }

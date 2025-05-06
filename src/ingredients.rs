@@ -1,30 +1,7 @@
-use crate::{additives::Additives, effect::Effect};
+use crate::{effect::Effect, expenses::{Additive, Expenses}};
 use ahash::AHashMap;
 use enumset::EnumSet;
 use std::sync::LazyLock;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum PseudoQuality {
-    Low,
-    Medium,
-    High,
-}
-
-impl std::fmt::Display for PseudoQuality {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = match self {
-            PseudoQuality::Low => String::from("Low Quality Pseudo"),
-            PseudoQuality::Medium => String::from("Medium Quality Pseudo"),
-            PseudoQuality::High => String::from("High Quality Pseudo"),
-        };
-
-        write!(f, "{s}")
-    }
-}
-
-impl PseudoQuality {
-    pub const ALL: &'static [Self] = &[PseudoQuality::Low, PseudoQuality::Medium, PseudoQuality::High];
-}
 
 /// A base ingredient, probably for a `Recipe`.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
@@ -83,49 +60,29 @@ impl Base {
         }
     }
 
-    /// Calculates the cost to produce this base.
+    /// Calculates the cost to produce this base as a negative `f32`.
     pub fn production_cost(
         &self,
-        additives: Option<Additives>,
-        grow_tent: Option<bool>,
-        pseudo: Option<PseudoQuality>,
+        expenses: Expenses
     ) -> f32 {
         use Base::*;
-        let base_weed_batch_size = 12.0;
-        let grow_tent_weed_malus = match grow_tent {
-            Some(true) => 4.0,
-            _ => 0.0,
-        };
-        let pgr_weed_bonus = match additives {
-            Some(a) if a.pgr => 4.0,
-            _ => 0.0,
-        };
-        let weed_batch_size = base_weed_batch_size - grow_tent_weed_malus + pgr_weed_bonus;
+        let weed_batch_size = 12.0 * expenses.grow_tent_multiplier() + expenses.pgr_weed_bonus();
 
-        let additives_cost = match additives {
-            Some(a) => a.price_offset(),
-            None => 0.0,
-        };
-
-        let pseudo_price = match pseudo {
-            None => 60.0,
-            Some(PseudoQuality::Low) => 60.0,
-            Some(PseudoQuality::Medium) => 80.0,
-            Some(PseudoQuality::High) => 110.0,
-        };
-        const ACID_PRICE: f32 = 40.0;
-        const PHOSPHOROUS_PRICE: f32 = 40.0;
+        const ACID_PRICE: f32 = -40.0;
+        const PHOSPHOROUS_PRICE: f32 = -40.0;
         const METH_BATCH_SIZE: f32 = 10.0;
-        match self {
-            OGKush => (30.0 + additives_cost) / weed_batch_size,
-            SourDiesel => (35.0 + additives_cost) / weed_batch_size,
-            GreenCrack => (40.0 + additives_cost) / weed_batch_size,
-            GranddaddyPurple => (45.0 + additives_cost) / weed_batch_size,
-            Meth => (pseudo_price + ACID_PRICE + PHOSPHOROUS_PRICE) / METH_BATCH_SIZE,
-        }
+        let c = match self {
+            OGKush => (-30.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
+            SourDiesel => (-35.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
+            GreenCrack => (-40.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
+            GranddaddyPurple => (-45.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
+            Meth => (expenses.pseudo_cost() + ACID_PRICE + PHOSPHOROUS_PRICE) / METH_BATCH_SIZE,
+        };
+
+        c
     }
 
-    /// Returns the sell price modifier of this `Base`.
+    /// Returns the sell price modifier of this `Base` as a postitive `f32`.
     pub fn sell_price(&self) -> f32 {
         use Base::*;
         match self {
@@ -425,25 +382,26 @@ impl Intermediate {
         }
     }
 
+    /// Returns the price of this ingredient as a negative `f32`.
     pub fn purchase_price(&self) -> f32 {
         use Intermediate::*;
         match self {
-            Addy => 9.0,
-            Banana => 2.0,
-            Battery => 8.0,
-            Chilli => 7.0,
-            Cuke => 2.0,
-            Donut => 3.0,
-            EnergyDrink => 6.0,
-            FluMedicine => 5.0,
-            Gasoline => 5.0,
-            HorseSemen => 9.0,
-            Iodine => 8.0,
-            MegaBean => 7.0,
-            MotorOil => 6.0,
-            MouthWash => 4.0,
-            Paracetamol => 3.0,
-            Viagra => 4.0,
+            Addy => -9.0,
+            Banana => -2.0,
+            Battery => -8.0,
+            Chilli => -7.0,
+            Cuke => -2.0,
+            Donut => -3.0,
+            EnergyDrink => -6.0,
+            FluMedicine => -5.0,
+            Gasoline => -5.0,
+            HorseSemen => -9.0,
+            Iodine => -8.0,
+            MegaBean => -7.0,
+            MotorOil => -6.0,
+            MouthWash => -4.0,
+            Paracetamol => -3.0,
+            Viagra => -4.0,
         }
     }
 
