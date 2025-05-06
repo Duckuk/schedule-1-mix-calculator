@@ -1,9 +1,6 @@
-use enumset::EnumSet;
-
 use crate::effect::Effect;
 use crate::ingredients::{Base, Intermediate};
 use crate::recipe::Recipe;
-use crate::{search_for_recipe_find_iddfs, search_for_recipe_max_dfs};
 
 #[expect(unused_macros)]
 macro_rules! time {
