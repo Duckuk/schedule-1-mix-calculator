@@ -9,7 +9,7 @@ lto = true
 
 [dependencies]
 ahash = "0.8.11"
-enumset = "1.1.5"
+enumset = "1.1.6"
 iced = "0.13.1"
 nalgebra = "0.33.2"
 rayon = "1.10.0"
