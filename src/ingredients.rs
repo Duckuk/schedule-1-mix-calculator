@@ -210,7 +210,7 @@ impl Intermediate {
         }
     }
 
-    /// Prefer `interactions`
+    /// Prefer `interactions` which returns statically calculated maps instead of being a potentially incorrect hardcoded interaction map.
     pub fn interactions_hardcoded(&self) -> AHashMap<Effect, Effect> {
         use Effect::*;
         use Intermediate::*;
