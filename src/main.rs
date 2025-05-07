@@ -142,8 +142,11 @@ enum Message {
     ChangedDepth(u8),
 
     ToggledGrowTent(bool),
+    #[expect(dead_code, reason = "iced checkbox requires us to take a bool even if we don't use it")]
     ToggledPGR(bool),
+    #[expect(dead_code)]
     ToggledFertilizer(bool),
+    #[expect(dead_code)]
     ToggledSpeedGrow(bool),
     ChangedSoil(Soil),
     ChangedPseudo(PseudoQuality),
@@ -259,15 +262,15 @@ impl MixCalculator {
                 self.expenses.grow_tent = b;
                 Task::none()
             }
-            Message::ToggledPGR(b) => {
+            Message::ToggledPGR(_) => {
                 self.expenses.additives ^= Additive::PGR;
                 Task::none()
             }
-            Message::ToggledFertilizer(b) => {
+            Message::ToggledFertilizer(_) => {
                 self.expenses.additives ^= Additive::Fertilizer;
                 Task::none()
             }
-            Message::ToggledSpeedGrow(b) => {
+            Message::ToggledSpeedGrow(_) => {
                 self.expenses.additives ^= Additive::SpeedGrow;
                 Task::none()
             }
