@@ -118,7 +118,6 @@ pub enum Intermediate {
     Viagra,
 }
 
-#[allow(dead_code)]
 impl Intermediate {
     pub const ALL: &'static [Self] = &[
         Intermediate::Addy,
