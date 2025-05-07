@@ -7,12 +7,17 @@ pub struct Expenses {
     pub additives: EnumSet<Additive>,
     pub pseudo: PseudoQuality,
     pub grow_tent: bool,
-    pub soil: Soil
+    pub soil: Soil,
 }
 
 impl Default for Expenses {
     fn default() -> Self {
-        Expenses { additives: EnumSet::new(), pseudo: PseudoQuality::Low, grow_tent: false, soil: Soil::Normal }
+        Expenses {
+            additives: EnumSet::new(),
+            pseudo: PseudoQuality::Low,
+            grow_tent: false,
+            soil: Soil::Normal,
+        }
     }
 }
 
@@ -26,7 +31,7 @@ impl Expenses {
     pub fn pgr_weed_bonus(&self) -> f32 {
         match self.additives.contains(Additive::PGR) {
             true => 4.0,
-            false => 0.0
+            false => 0.0,
         }
     }
 
@@ -35,9 +40,9 @@ impl Expenses {
         match self.additives.contains(Additive::PGR) {
             true => match self.grow_tent {
                 true => 5.0,
-                false => 7.0
+                false => 7.0,
             },
-            false => 0.0
+            false => 0.0,
         }
     }
 
@@ -54,7 +59,7 @@ impl Expenses {
     pub fn grow_tent_multiplier(&self) -> f32 {
         match self.grow_tent {
             true => 2.0 / 3.0,
-            false => 1.0
+            false => 1.0,
         }
     }
 
@@ -76,7 +81,11 @@ pub enum PseudoQuality {
 }
 
 impl PseudoQuality {
-    pub const ALL: &'static [Self] = &[PseudoQuality::Low, PseudoQuality::Medium, PseudoQuality::High];
+    pub const ALL: &'static [Self] = &[
+        PseudoQuality::Low,
+        PseudoQuality::Medium,
+        PseudoQuality::High,
+    ];
 }
 
 impl std::fmt::Display for PseudoQuality {
@@ -95,7 +104,7 @@ impl std::fmt::Display for PseudoQuality {
 pub enum Soil {
     Normal,
     LongLife,
-    ExtraLongLife
+    ExtraLongLife,
 }
 
 impl std::fmt::Display for Soil {
@@ -118,5 +127,5 @@ impl Soil {
 pub enum Additive {
     PGR,
     SpeedGrow,
-    Fertilizer
+    Fertilizer,
 }

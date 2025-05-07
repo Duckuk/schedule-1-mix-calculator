@@ -1,14 +1,14 @@
-pub mod expenses;
 pub mod effect;
+pub mod expenses;
 pub mod ingredients;
 pub mod recipe;
 
 #[cfg(test)]
 mod tests;
 
-use expenses::{Additive, Expenses, PseudoQuality, Soil};
 use effect::Effect;
 use enumset::EnumSet;
+use expenses::{Additive, Expenses, PseudoQuality, Soil};
 use iced::{
     Alignment, Element, Length, Padding, Task, Theme,
     widget::{
@@ -260,7 +260,7 @@ impl MixCalculator {
                 Task::none()
             }
             Message::ToggledPGR(b) => {
-                self.expenses.additives ^= Additive::PGR; 
+                self.expenses.additives ^= Additive::PGR;
                 Task::none()
             }
             Message::ToggledFertilizer(b) => {
@@ -297,8 +297,7 @@ impl MixCalculator {
                             + (100.0 * r.profit(Expenses::default())) as i64
                     },
                     Metric::SellPrice => |r: &Recipe| {
-                        (100.0 * r.addictiveness()) as i64
-                            + (100.0 * r.sell_price()) as i64
+                        (100.0 * r.addictiveness()) as i64 + (100.0 * r.sell_price()) as i64
                     },
                     Metric::ProductionCost => |r: &Recipe| {
                         (100.0 * r.addictiveness()) as i64
@@ -363,15 +362,26 @@ impl MixCalculator {
 
         let grow_tent_checkbox =
             checkbox("Grow Tent", self.expenses.grow_tent).on_toggle(Message::ToggledGrowTent);
-        let pgr_checkbox = checkbox("PGR", self.expenses.additives.contains(Additive::PGR)).on_toggle(Message::ToggledPGR);
-        let fertilizer_checkbox =
-            checkbox("Fertilizer", self.expenses.additives.contains(Additive::Fertilizer)).on_toggle(Message::ToggledFertilizer);
-        let speedgrow_checkbox =
-            checkbox("Speed Grow", self.expenses.additives.contains(Additive::SpeedGrow)).on_toggle(Message::ToggledSpeedGrow);
+        let pgr_checkbox = checkbox("PGR", self.expenses.additives.contains(Additive::PGR))
+            .on_toggle(Message::ToggledPGR);
+        let fertilizer_checkbox = checkbox(
+            "Fertilizer",
+            self.expenses.additives.contains(Additive::Fertilizer),
+        )
+        .on_toggle(Message::ToggledFertilizer);
+        let speedgrow_checkbox = checkbox(
+            "Speed Grow",
+            self.expenses.additives.contains(Additive::SpeedGrow),
+        )
+        .on_toggle(Message::ToggledSpeedGrow);
         let soil_picker =
             pick_list(Soil::ALL, Some(self.expenses.soil), Message::ChangedSoil).text_size(10);
-        let pseudo_picker =
-            pick_list(PseudoQuality::ALL, Some(self.expenses.pseudo), Message::ChangedPseudo).text_size(10);
+        let pseudo_picker = pick_list(
+            PseudoQuality::ALL,
+            Some(self.expenses.pseudo),
+            Message::ChangedPseudo,
+        )
+        .text_size(10);
 
         row![
             row![text("Mode").size(15), mode_picker,].spacing(5),
@@ -415,22 +425,11 @@ impl MixCalculator {
     fn recipe_info(&self) -> Element<'_, Message> {
         let r = self.active_recipe.clone().unwrap_or_default();
 
-        let production_cost = text(format!(
-            "~${:.0}",
-            r.production_cost(
-                self.expenses
-            ).abs()
-        ))
-        .size(15);
+        let production_cost =
+            text(format!("~${:.0}", r.production_cost(self.expenses).abs())).size(15);
         let sell_price = text(format!("${:.0}", r.sell_price())).size(15);
-        let profit_margin = text(format!(
-            "{:.1}%",
-            100.0
-                * r.profit_margin(
-                    self.expenses
-                )
-        ))
-        .size(15);
+        let profit_margin =
+            text(format!("{:.1}%", 100.0 * r.profit_margin(self.expenses))).size(15);
 
         row![
             horizontal_space(),

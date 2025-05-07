@@ -19,7 +19,14 @@ fn calculate_effects_test() {
         .add_intermediate(Intermediate::Donut)
         .add_intermediate(Intermediate::Cuke)
         .add_intermediate(Intermediate::Banana);
-    assert_eq!(donut.calculate_effects(), Effect::CalorieDense | Effect::Gingeritis | Effect::Jennerising | Effect::Sneaky | Effect::ThoughtProvoking)
+    assert_eq!(
+        donut.calculate_effects(),
+        Effect::CalorieDense
+            | Effect::Gingeritis
+            | Effect::Jennerising
+            | Effect::Sneaky
+            | Effect::ThoughtProvoking
+    )
 }
 
 #[test]

@@ -1,4 +1,4 @@
-use crate::{effect::Effect, expenses::{Additive, Expenses}};
+use crate::{effect::Effect, expenses::Expenses};
 use ahash::AHashMap;
 use enumset::EnumSet;
 use std::sync::LazyLock;
@@ -35,7 +35,7 @@ impl Base {
         Base::GranddaddyPurple,
         Base::Meth,
     ];
-    
+
     /// Returns the addictiveness of this `Base`.
     pub fn addictiveness(&self) -> f32 {
         use Base::*;
@@ -61,10 +61,7 @@ impl Base {
     }
 
     /// Calculates the cost to produce this base as a negative `f32`.
-    pub fn production_cost(
-        &self,
-        expenses: Expenses
-    ) -> f32 {
+    pub fn production_cost(&self, expenses: Expenses) -> f32 {
         use Base::*;
         let weed_batch_size = 12.0 * expenses.grow_tent_multiplier() + expenses.pgr_weed_bonus();
 
@@ -73,9 +70,15 @@ impl Base {
         const METH_BATCH_SIZE: f32 = 10.0;
         let c = match self {
             OGKush => (-30.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
-            SourDiesel => (-35.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
-            GreenCrack => (-40.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
-            GranddaddyPurple => (-45.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
+            SourDiesel => {
+                (-35.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size
+            }
+            GreenCrack => {
+                (-40.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size
+            }
+            GranddaddyPurple => {
+                (-45.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size
+            }
             Meth => (expenses.pseudo_cost() + ACID_PRICE + PHOSPHOROUS_PRICE) / METH_BATCH_SIZE,
         };
 
@@ -373,7 +376,7 @@ impl Intermediate {
         if effect_set.len() < 8 {
             effect_set.insert(self.effect());
         }
-        
+
         for (from_effect, to_effect) in self.interactions() {
             if frozen_effect_set.contains(*from_effect) && !frozen_effect_set.contains(*to_effect) {
                 effect_set.remove(*from_effect);
