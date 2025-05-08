@@ -26,4 +26,4 @@ pkgs.mkShell rec {
   LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
 }
 
-// source taken from https://github.com/iced-rs/iced/blob/master/DEPENDENCIES.md :)
+# source taken from https://github.com/iced-rs/iced/blob/fe41b3e7608c38ffa136e40c207d068a2b805998/DEPENDENCIES.md :)
