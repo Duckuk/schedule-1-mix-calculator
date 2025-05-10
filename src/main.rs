@@ -10,11 +10,10 @@ use effect::Effect;
 use enumset::EnumSet;
 use expenses::{Additive, Expenses, PseudoQuality, Soil};
 use iced::{
-    Alignment, Element, Length, Padding, Task, Theme,
     widget::{
         button, checkbox, column, container, horizontal_space, pick_list, progress_bar, row,
-        scrollable, text,
-    },
+        scrollable, text, text_editor,
+    }, Alignment, Element, Length, Padding, Task, Theme
 };
 use ingredients::{Base, Intermediate};
 use recipe::Recipe;
@@ -153,6 +152,7 @@ enum Message {
 
     CalculateRecipe,
     CalculateRecipeFinished(Option<Recipe>),
+    ChangedRecipeText(text_editor::Action),
 
     ChangedTheme(Theme),
 }
@@ -173,6 +173,7 @@ struct MixCalculator {
 
     calculating_recipe: bool,
     active_recipe: Option<Recipe>,
+    recipe_text: text_editor::Content,
 
     progress_state: f32,
 
@@ -206,6 +207,7 @@ impl Default for MixCalculator {
 
             calculating_recipe: false,
             active_recipe: Some(default_recipe),
+            recipe_text: text_editor::Content::new(),
 
             progress_state: Default::default(),
 
@@ -330,12 +332,21 @@ impl MixCalculator {
                 self.calculating_recipe = false;
                 match recipe {
                     Some(r) => {
+                        self.recipe_text = text_editor::Content::with_text(&r.to_string());
                         self.active_recipe = Some(r);
                     }
                     None => {
+                        self.recipe_text = text_editor::Content::new();
                         self.active_recipe = None;
                     }
                 }
+                Task::none()
+            }
+            Message::ChangedRecipeText(action) if !action.is_edit() => {
+                self.recipe_text.perform(action);
+                Task::none()
+            }
+            Message::ChangedRecipeText(_) => {
                 Task::none()
             }
         }
@@ -414,14 +425,11 @@ impl MixCalculator {
     }
 
     fn recipe_container(&self) -> Element<'_, Message> {
-        container(match &self.active_recipe {
-            Some(r) => scrollable(text(r.to_string())),
-            None => scrollable("No recipe found!"),
-        })
+        container(text_editor(&self.recipe_text).placeholder("No recipe found!").on_action(Message::ChangedRecipeText).height(Length::Fill))
         .width(Length::Fill)
         .height(Length::Fill)
         .style(container::rounded_box)
-        .padding(10)
+        .padding(5)
         .into()
     }
 
