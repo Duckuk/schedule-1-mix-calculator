@@ -210,8 +210,8 @@ impl Default for MixCalculator {
             expenses: Expenses::default(),
 
             calculating_recipe: false,
+            recipe_text: text_editor::Content::with_text(&default_recipe.to_string()),
             active_recipe: Some(default_recipe),
-            recipe_text: text_editor::Content::new(),
 
             progress_state: Default::default(),
 
