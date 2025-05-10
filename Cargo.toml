@@ -8,7 +8,7 @@ license-file = "LICENSE"
 lto = true
 
 [dependencies]
-ahash = "0.8.11"
+ahash = "0.8.12"
 enumset = "1.1.6"
 iced = "0.13.1"
 nalgebra = "0.33.2"
