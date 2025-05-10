@@ -10,10 +10,11 @@ use effect::Effect;
 use enumset::EnumSet;
 use expenses::{Additive, Expenses, PseudoQuality, Soil};
 use iced::{
+    Alignment, Element, Length, Padding, Task, Theme,
     widget::{
         button, checkbox, column, container, horizontal_space, pick_list, progress_bar, row,
         scrollable, text, text_editor,
-    }, Alignment, Element, Length, Padding, Task, Theme
+    },
 };
 use ingredients::{Base, Intermediate};
 use recipe::Recipe;
@@ -141,7 +142,10 @@ enum Message {
     ChangedDepth(u8),
 
     ToggledGrowTent(bool),
-    #[expect(dead_code, reason = "iced checkbox requires us to take a bool even if we don't use it")]
+    #[expect(
+        dead_code,
+        reason = "iced checkbox requires us to take a bool even if we don't use it"
+    )]
     ToggledPGR(bool),
     #[expect(dead_code)]
     ToggledFertilizer(bool),
@@ -346,9 +350,7 @@ impl MixCalculator {
                 self.recipe_text.perform(action);
                 Task::none()
             }
-            Message::ChangedRecipeText(_) => {
-                Task::none()
-            }
+            Message::ChangedRecipeText(_) => Task::none(),
         }
     }
     fn view(&self) -> Element<Message> {
@@ -425,7 +427,12 @@ impl MixCalculator {
     }
 
     fn recipe_container(&self) -> Element<'_, Message> {
-        container(text_editor(&self.recipe_text).placeholder("No recipe found!").on_action(Message::ChangedRecipeText).height(Length::Fill))
+        container(
+            text_editor(&self.recipe_text)
+                .placeholder("No recipe found!")
+                .on_action(Message::ChangedRecipeText)
+                .height(Length::Fill),
+        )
         .width(Length::Fill)
         .height(Length::Fill)
         .style(container::rounded_box)
