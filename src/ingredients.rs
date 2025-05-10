@@ -68,7 +68,8 @@ impl Base {
         const ACID_PRICE: f32 = -40.0;
         const PHOSPHOROUS_PRICE: f32 = -40.0;
         const METH_BATCH_SIZE: f32 = 10.0;
-        let c = match self {
+
+        match self {
             OGKush => (-30.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size,
             SourDiesel => {
                 (-35.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size
@@ -80,9 +81,7 @@ impl Base {
                 (-45.0 + expenses.additives_cost() + expenses.soil_cost()) / weed_batch_size
             }
             Meth => (expenses.pseudo_cost() + ACID_PRICE + PHOSPHOROUS_PRICE) / METH_BATCH_SIZE,
-        };
-
-        c
+        }
     }
 
     /// Returns the sell price modifier of this `Base` as a postitive `f32`.
